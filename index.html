@@ -1,0 +1,245 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { padding: 1.5rem 0; font-family: var(--font-sans); }
+h2 { font-size: 16px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.sub { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 1.25rem; }
+.tabs { display: flex; gap: 4px; margin-bottom: 1.25rem; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.tab { padding: 8px 14px; font-size: 13px; color: var(--color-text-secondary); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -0.5px; transition: color 0.15s; }
+.tab.active { color: var(--color-text-info); border-bottom-color: var(--color-text-info); }
+.panel { display: none; } .panel.active { display: block; }
+
+.btn { padding: 7px 14px; font-size: 13px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-primary); cursor: pointer; transition: background 0.15s; }
+.btn:hover { background: var(--color-background-secondary); }
+.btn.primary { border-color: var(--color-border-info); color: var(--color-text-info); }
+.btn.primary:hover { background: var(--color-background-info); }
+
+.checklist { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1rem; }
+.check-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); cursor: pointer; transition: border-color 0.15s; }
+.check-item:hover { border-color: var(--color-border-secondary); }
+.check-item.done { opacity: 0.5; }
+.check-item.done .check-title { text-decoration: line-through; }
+.checkbox { width: 18px; height: 18px; border-radius: 4px; border: 0.5px solid var(--color-border-secondary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; transition: all 0.15s; }
+.check-item.done .checkbox { background: var(--color-background-success); border-color: var(--color-border-success); color: var(--color-text-success); }
+.check-body { flex: 1; }
+.check-title { font-size: 13px; color: var(--color-text-primary); }
+.check-sub { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+.check-tag { font-size: 10px; padding: 1px 7px; border-radius: 20px; background: var(--color-background-secondary); color: var(--color-text-secondary); display: inline-block; margin-top: 4px; }
+.check-tag.urgent { background: var(--color-background-danger); color: var(--color-text-danger); }
+.check-tag.finance { background: var(--color-background-success); color: var(--color-text-success); }
+
+.progress-row { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
+.prog-bar { flex: 1; height: 6px; background: var(--color-border-tertiary); border-radius: 3px; overflow: hidden; }
+.prog-fill { height: 100%; background: var(--color-text-success); border-radius: 3px; transition: width 0.3s; }
+.prog-label { font-size: 12px; color: var(--color-text-secondary); min-width: 40px; text-align: right; }
+
+.team-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
+.person-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 10px 12px; }
+.person-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+.person-task { font-size: 12px; color: var(--color-text-secondary); margin-top: 3px; }
+.person-status { font-size: 10px; margin-top: 5px; padding: 2px 7px; border-radius: 20px; display: inline-block; background: var(--color-background-secondary); color: var(--color-text-secondary); cursor: pointer; }
+.person-status.ja { background: var(--color-background-success); color: var(--color-text-success); }
+.person-status.nee { background: var(--color-background-danger); color: var(--color-text-danger); }
+
+.quiz-section { margin-bottom: 1rem; }
+.quiz-cat { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 10px 12px; margin-bottom: 6px; }
+.quiz-cat-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.quiz-q { font-size: 12px; color: var(--color-text-secondary); padding: 3px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.quiz-q:last-child { border-bottom: none; padding-bottom: 0; }
+.quiz-a { font-size: 11px; color: var(--color-text-success); }
+</style>
+
+<div class="wrap">
+  <h2>Evenement planner — spelersraad HHC'09</h2>
+  <p class="sub">Casino-avond, pubquiz, slotavonden — alles op één plek</p>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('checklist')">Checklist</div>
+    <div class="tab" onclick="switchTab('team')">Team taken</div>
+    <div class="tab" onclick="switchTab('quiz')">Pubquiz vragen</div>
+    <div class="tab" onclick="switchTab('marketing')">Marketing</div>
+  </div>
+
+  <div id="panel-checklist" class="panel active">
+    <div class="progress-row">
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+      <div class="prog-label" id="prog-label">0%</div>
+    </div>
+    <div class="checklist" id="checklist"></div>
+    <button class="btn primary" onclick="sendPrompt('Genereer een uitgebreide casino-avond planning voor HHC\'09 spelersraad. Include: locatie tips in de regio, benodigde materialen, draaiboek voor de avond, hoe je een casino-avond winstgevend maakt, en een promotiestrategie voor de club.')">Uitgebreid draaiboek ↗</button>
+  </div>
+
+  <div id="panel-team" class="panel">
+    <div class="team-grid" id="team-grid"></div>
+    <button class="btn primary" style="margin-top:4px" onclick="sendPrompt('Schrijf een WhatsApp bericht voor de spelersraad van HHC\'09 om vrijwilligers te werven voor de casino-avond. Enthousiast, to the point, met duidelijke taakomschrijvingen.')">WhatsApp bericht schrijven ↗</button>
+  </div>
+
+  <div id="panel-quiz" class="panel">
+    <p style="font-size:13px; color:var(--color-text-secondary); margin-bottom:1rem;">Voorgegenereerde vragen voor de pubquiz. Klik om meer te genereren per categorie.</p>
+    <div class="quiz-section" id="quiz-section"></div>
+    <button class="btn primary" onclick="sendPrompt('Genereer 50 pubquiz vragen voor een avond bij een voetbalclub HHC\'09. Mix van: Nederlands voetbal, Ajax, lokale kennis Noord-Brabant, muziek, film, sport algemeen en weetjes. Geef per vraag het antwoord tussen haakjes.')">Genereer 50 vragen ↗</button>
+  </div>
+
+  <div id="panel-marketing" class="panel">
+    <div style="display:flex;flex-direction:column;gap:8px" id="marketing-panel"></div>
+  </div>
+</div>
+
+<script>
+const checkItems = [
+  { title: 'Datum prikken en locatie boeken', sub: 'Clubhuis of externe locatie reserveren', tag: 'urgent', weeks: '6 weken voor' },
+  { title: 'Casino materialen regelen', sub: 'Roulette, blackjack, poker tafels huren', tag: 'finance', weeks: '4 weken voor' },
+  { title: 'Kaartjes drukken / digitaal verkopen', sub: 'Prijs bepalen — advies: €10-15 per persoon', tag: 'finance', weeks: '4 weken voor' },
+  { title: 'Instagram aankondiging posten', sub: 'Poster via Canva, 3x posts voor het event', tag: 'marketing', weeks: '3 weken voor' },
+  { title: 'WhatsApp uitnodiging spelersraad', sub: 'Naar alle spelers, staf en vrijwilligers sturen', tag: '', weeks: '3 weken voor' },
+  { title: 'Vrijwilligers indelen', sub: 'Bar, kassa, casino tafels, licht & geluid', tag: 'urgent', weeks: '2 weken voor' },
+  { title: 'Bar inkopen regelen', sub: 'Bier, frisdrank, snacks berekenen op verwacht aantal', tag: 'finance', weeks: '1 week voor' },
+  { title: 'Prijzen voor casino winnaars', sub: 'Goedkope maar leuke prijzen kopen', tag: 'finance', weeks: '1 week voor' },
+  { title: 'Draaiboek avond schrijven', sub: 'Tijdslijn, muziek, activiteiten', tag: '', weeks: '1 week voor' },
+  { title: 'Dag zelf: opbouw regelen', sub: 'Wie komt wanneer, wat bouwt wat op', tag: 'urgent', weeks: 'Op de dag' },
+  { title: 'Kassa en wisselgeld klaarzetten', sub: 'Casinomunten of eigen valuta-systeem', tag: 'finance', weeks: 'Op de dag' },
+  { title: 'Instagram story live tijdens avond', sub: 'Foto\'s en video\'s voor meer bereik', tag: '', weeks: 'Tijdens event' },
+  { title: 'Winst / verlies berekening', sub: 'Inkomsten min kosten = resultaat', tag: 'finance', weeks: 'Na event' },
+  { title: 'Bedankt post op Instagram', sub: 'Foto\'s van de avond + dank aan bezoekers', tag: '', weeks: 'Na event' },
+];
+
+const tagColors = { urgent: 'urgent', finance: 'finance', marketing: '', '': '' };
+const done = new Set();
+
+function renderChecklist() {
+  const list = document.getElementById('checklist');
+  list.innerHTML = '';
+  checkItems.forEach((item, i) => {
+    const el = document.createElement('div');
+    el.className = 'check-item' + (done.has(i) ? ' done' : '');
+    el.onclick = () => { done.has(i) ? done.delete(i) : done.add(i); renderChecklist(); };
+    el.innerHTML = `
+      <div class="checkbox">${done.has(i) ? '<i class="ti ti-check" style="font-size:12px" aria-hidden="true"></i>' : ''}</div>
+      <div class="check-body">
+        <div class="check-title">${item.title}</div>
+        <div class="check-sub">${item.sub}</div>
+        <span class="check-tag ${item.tag}">${item.weeks}</span>
+        ${item.tag === 'finance' ? '<span class="check-tag finance" style="margin-left:4px">💶 financieel</span>' : ''}
+        ${item.tag === 'urgent' ? '<span class="check-tag urgent" style="margin-left:4px">⚡ urgent</span>' : ''}
+      </div>`;
+    list.appendChild(el);
+  });
+  const pct = Math.round(done.size / checkItems.length * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = pct + '%';
+}
+
+const teamMembers = [
+  { name: 'Joey', task: 'Social media + marketing', status: 'ja' },
+  { name: 'Spelersraad lid 2', task: 'Kassa + kaartverkoop', status: '' },
+  { name: 'Spelersraad lid 3', task: 'Bar inkopen + beheer', status: '' },
+  { name: 'Vrijwilliger 1', task: 'Casino tafel roulette', status: '' },
+  { name: 'Vrijwilliger 2', task: 'Casino tafel blackjack', status: '' },
+  { name: 'Vrijwilliger 3', task: 'Licht & geluid + DJ', status: '' },
+];
+
+function renderTeam() {
+  const grid = document.getElementById('team-grid');
+  grid.innerHTML = '';
+  teamMembers.forEach((m, i) => {
+    const card = document.createElement('div');
+    card.className = 'person-card';
+    card.innerHTML = `
+      <div class="person-name">${m.name}</div>
+      <div class="person-task">${m.task}</div>
+      <span class="person-status ${m.status}" onclick="cycleStatus(${i}); event.stopPropagation()">
+        ${m.status === 'ja' ? '✓ Bevestigd' : m.status === 'nee' ? '✗ Niet beschikbaar' : '? Nog onbekend'}
+      </span>`;
+    grid.appendChild(card);
+  });
+}
+
+function cycleStatus(i) {
+  const states = ['', 'ja', 'nee'];
+  const curr = states.indexOf(teamMembers[i].status);
+  teamMembers[i].status = states[(curr + 1) % states.length];
+  renderTeam();
+}
+
+const quizData = [
+  { cat: '⚽ Voetbal', questions: [
+    { q: 'In welk jaar werd Ajax voor het laatste kampioen van Europa?', a: '1995' },
+    { q: 'Hoeveel Nederlandse spelers waren er in het WK elftal van 2010?', a: '23' },
+    { q: 'Welke club speelt in de Grolsch Veste?', a: 'FC Twente' },
+  ]},
+  { cat: '🏡 Noord-Brabant', questions: [
+    { q: 'Wat is de grootste stad van Noord-Brabant?', a: 'Eindhoven' },
+    { q: 'Welk carnavalsnaam heeft Tilburg?', a: 'Kruikenstad' },
+    { q: 'In welke stad staat het Efteling?', a: 'Kaatsheuvel' },
+  ]},
+  { cat: '🎵 Muziek', questions: [
+    { q: 'Welke Nederlandse band maakte "Radar Love"?', a: 'Golden Earring' },
+    { q: 'Wie is de zanger van De Staat?', a: 'Torre Florim' },
+    { q: 'Welk jaar verscheen het eerste album van Marco Borsato?', a: '1990' },
+  ]},
+];
+
+function renderQuiz() {
+  const sec = document.getElementById('quiz-section');
+  sec.innerHTML = '';
+  quizData.forEach(cat => {
+    const div = document.createElement('div');
+    div.className = 'quiz-cat';
+    div.innerHTML = `<div class="quiz-cat-name">${cat.cat}</div>`;
+    cat.questions.forEach(q => {
+      const qDiv = document.createElement('div');
+      qDiv.className = 'quiz-q';
+      qDiv.innerHTML = `${q.q} <span class="quiz-a">(${q.a})</span>`;
+      div.appendChild(qDiv);
+    });
+    const btn = document.createElement('button');
+    btn.className = 'btn';
+    btn.style.fontSize = '11px';
+    btn.style.marginTop = '8px';
+    btn.style.padding = '4px 10px';
+    btn.textContent = '+ Meer vragen in deze categorie ↗';
+    btn.onclick = () => sendPrompt(`Genereer 10 pubquiz vragen over de categorie "${cat.cat.replace(/[^\w\s]/g,'').trim()}" voor een avond bij een voetbalclub. Inclusief antwoorden.`);
+    div.appendChild(btn);
+    sec.appendChild(div);
+  });
+}
+
+const marketingItems = [
+  { label: 'Instagram aankondiging', prompt: 'Schrijf een Instagram post voor de casino-avond van HHC\'09. Spannend, met datum placeholder [DATUM], prijs [PRIJS], en call-to-action. Met relevante emoji\'s en hashtags.' },
+  { label: 'WhatsApp uitnodiging spelers', prompt: 'Schrijf een WhatsApp berichtje voor alle spelers van HHC\'09 voor de casino-avond. Kort, gezellig, met datum en locatie als placeholder. Max 3 zinnen.' },
+  { label: 'Facebook event beschrijving', prompt: 'Schrijf een uitgebreide Facebook event beschrijving voor de casino-avond van HHC\'09. Informatief, enthousiast, met alle benodigde info als placeholders.' },
+  { label: 'Reminder post (dag voor event)', prompt: 'Schrijf een Instagram reminder post voor de dag voor de casino-avond van HHC\'09. Korte reminder, beetje urgentie creëren, laatste plaatsen beschikbaar sfeer.' },
+  { label: 'After-event bedankt post', prompt: 'Schrijf een Instagram post na de casino-avond van HHC\'09. Bedankt iedereen, benoemt het succes, vraagt om tag in foto\'s. Warm en gemeenschappelijk gevoel.' },
+];
+
+function renderMarketing() {
+  const panel = document.getElementById('marketing-panel');
+  panel.innerHTML = '';
+  marketingItems.forEach(item => {
+    const card = document.createElement('div');
+    card.style.cssText = 'background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px';
+    card.innerHTML = `<span style="font-size:13px;color:var(--color-text-primary)">${item.label}</span>`;
+    const btn = document.createElement('button');
+    btn.className = 'btn primary';
+    btn.style.cssText = 'font-size:11px;padding:5px 10px;white-space:nowrap;flex-shrink:0';
+    btn.textContent = 'Genereer ↗';
+    btn.onclick = () => sendPrompt(item.prompt);
+    card.appendChild(btn);
+    panel.appendChild(card);
+  });
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    const names = ['checklist','team','quiz','marketing'];
+    t.classList.toggle('active', names[i] === name);
+  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+renderChecklist();
+renderTeam();
+renderQuiz();
+renderMarketing();
+</script>
